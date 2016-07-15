@@ -26,12 +26,13 @@ def main():
     test_iter = iterators.SerialIterator(test, batch_size=100, repeat=False, shuffle=False)
 
     model = L.Classifier(MLP())
+    model.to_gpu()
     optimizer = optimizers.SGD()
     optimizer.setup(model)
 
-    updater = training.StandardUpdater(train_iter, optimizer)
+    updater = training.StandardUpdater(train_iter, optimizer, device=0)
     trainer = training.Trainer(updater, (20, 'epoch'), out='result')
-    trainer.extend(extensions.Evaluator(test_iter, model))
+    trainer.extend(extensions.Evaluator(test_iter, model, device=0))
     trainer.extend(extensions.LogReport())
     trainer.extend(extensions.PrintReport(['epoch', 'main/accuracy', 'validation/main/accuracy']))
     trainer.extend(extensions.ProgressBar())
